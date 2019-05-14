@@ -11,9 +11,12 @@ class App extends React.Component {
         super(props);
         this.state = {
             users: [],
-            selectedUser: null
+            selectedUser: null,
+            selectedFilter: ""
         };
         this.onSelectUser = this.onSelectUser.bind(this);
+        this.onFilterChange = this.onFilterChange.bind(this);
+        this.filterUsers = this.filterUsers.bind(this);
     }
 
     componentDidMount() {
@@ -48,8 +51,21 @@ class App extends React.Component {
         this.setState({selectedUser: user});
     }
 
+    onFilterChange(filter) {
+        this.setState({selectedFilter: filter, selectedUser: null});
+    }
+
+    filterUsers(filter) {
+        const { users } = this.state;
+        let filterUsers = users.filter(function(data) {
+            return (data.gender === filter);
+        });
+
+        return filterUsers.map((data, key)=> this.renderUserItem(data, key));
+    }
+
     render() {
-        const { users, selectedUser } = this.state;
+        const { users, selectedUser, selectedFilter } = this.state;
 
         return (
             <div>
@@ -58,10 +74,13 @@ class App extends React.Component {
                         <p className="users__header title">Users</p>
                         <span className="users__header subtitle">If you want to get contact information to specific user, just select group and then select him from the list below</span>
                     </header>
-                    <Search />
+                    <Search onFilterChange={this.onFilterChange}/>
                     <div className="results">
                         {
-                            users.map((data, key)=> this.renderUserItem(data, key))
+                            selectedFilter?
+                                this.filterUsers(selectedFilter)
+                            :
+                                users.map((data, key)=> this.renderUserItem(data, key))
                         }
                     </div>
                 </div>
